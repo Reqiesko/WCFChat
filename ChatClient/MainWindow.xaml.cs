@@ -32,9 +32,10 @@ namespace ChatClient
             {
                 client = new ServiceChatClient(new System.ServiceModel.InstanceContext(this));
                 ID = client.Connect(tbUserName.Text);
-                if (ID != 0)
+                if (ID != -1)
                 {
                     client.ShowOnline();
+                    client.ShowMessages(ID);
                     tbUserName.IsEnabled = false;
                     BttnSendFile.IsEnabled = true;
                     DownloadBttn.IsEnabled = true;
@@ -119,7 +120,6 @@ namespace ChatClient
                 for (int i = 0; i < FileStream.Length; i++)
                 {
                     file[i] = (byte)FileStream.ReadByte();
-                    string s = Encoding.Default.GetString(file);
                 }
                 client.AddFile(file, Path.GetFileName(openFile.FileName));
                 FileStream.Close();
@@ -146,6 +146,12 @@ namespace ChatClient
             filestream.Write(file, 0, file.Length);
             filestream.Close();
             MessageBox.Show("Файл успешно загружен!");
+        }
+
+        public void ShowMsgCallback(string text)
+        {
+            lbChat.Items.Add(text);
+            lbChat.ScrollIntoView(lbChat.Items[lbChat.Items.Count - 1]);
         }
     }
 }

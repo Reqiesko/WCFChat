@@ -14,7 +14,7 @@ namespace WCFChat
     {
         private List<ServerUser> users = new List<ServerUser>();
         private Logger logger = LogManager.GetCurrentClassLogger();
-        private int nextId = 1;
+        private int nextId = 0;
         private List<ServerFiles> files = new List<ServerFiles>();
 
 
@@ -30,14 +30,13 @@ namespace WCFChat
                     operationContext = OperationContext.Current
                 };
                 nextId++;
-
-                SendMsg(" - " + user.Name + " подключился к чату!", 0);
+                SendMsg(" - " + user.Name + " подключился к чату!", -1);
                 users.Add(user);
                 return user.ID;
             }
             else
             {
-                return 0;
+                return -1;
             }
         }
 
@@ -47,7 +46,7 @@ namespace WCFChat
             if (user != null)
             {
                 users.Remove(user);
-                SendMsg(" - " + user.Name + " покинул чат!", 0);
+                SendMsg(" - " + user.Name + " покинул чат!", -1);
             }
         }
         #endregion
@@ -82,17 +81,46 @@ namespace WCFChat
         #region Messages
         public void SendMsg(string msg, int id)
         {
+            string ms = null;
             foreach (var item in users)
             {
                 string answer = DateTime.Now.ToShortTimeString();
-
                 var user = users.FirstOrDefault(i => i.ID == id);
                 if (user != null)
                 {
                     answer += " - " + user.Name + " ";
                 }
                 answer += msg;
+                ms = answer;
                 item.operationContext.GetCallbackChannel<IServerChatCallback>().MsgCallback(answer);
+            }
+            SaveMsg(ms + Environment.NewLine);
+        }
+
+        public void SaveMsg(string msg)
+        {
+            byte[] msgBytes = Encoding.Default.GetBytes(msg);
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            logger.Trace($"Сообщение {msg} сохранено, путь: " + path + "/messages.txt");
+            var filestream = File.Open(path + "/messages.txt", FileMode.Append, FileAccess.Write);
+            filestream.Write(msgBytes, 0, msgBytes.Length);
+            filestream.Flush();
+            filestream.Close();
+        }
+
+        public void ShowMessages(int id)
+        {
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/messages.txt"))
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/messages.txt";
+                var filestream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
+                byte[] array = new byte[filestream.Length];
+                filestream.Read(array, 0, array.Length);
+                string text = Encoding.Default.GetString(array);
+                filestream.Flush();
+                filestream.Close();
+                var user = users.FirstOrDefault(i => i.ID == id);
+                users[user.ID].operationContext.GetCallbackChannel<IServerChatCallback>().ShowMsgCallback(text);
             }
         }
         #endregion
@@ -113,7 +141,8 @@ namespace WCFChat
 
         public void DownloadFile(int id, string path)
         {
-            users[id].operationContext.GetCallbackChannel<IServerChatCallback>().DownloadFileCallback(files[files.Count - 1].FileBytes, path);
+            var user = users.FirstOrDefault(i => i.ID == id);
+            users[user.ID].operationContext.GetCallbackChannel<IServerChatCallback>().DownloadFileCallback(files[files.Count - 1].FileBytes, path);
         }
         #endregion
     }

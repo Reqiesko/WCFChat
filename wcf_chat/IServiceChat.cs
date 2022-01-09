@@ -21,6 +21,12 @@ namespace WCFChat
         string GetOnline();
 
         [OperationContract(IsOneWay = true)]
+        void SaveMsg(string msg);
+
+        [OperationContract(IsOneWay = true)]
+        void ShowMessages(int id);
+
+        [OperationContract(IsOneWay = true)]
         void SendMsg(string msg, int id);
 
         [OperationContract(IsOneWay = true)]
@@ -38,6 +44,9 @@ namespace WCFChat
     {
         [OperationContract(IsOneWay = true)]
         void MsgCallback(string msg);
+
+        [OperationContract(IsOneWay = true)]
+        void ShowMsgCallback(string text);
 
         [OperationContract(IsOneWay = true)]
         void ShowOnlineCallback(List<string> users);

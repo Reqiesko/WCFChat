@@ -33,6 +33,18 @@ namespace ChatClient.ServiceChat {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServiceChat/GetOnline", ReplyAction="http://tempuri.org/IServiceChat/GetOnlineResponse")]
         System.Threading.Tasks.Task<string> GetOnlineAsync();
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/SaveMsg")]
+        void SaveMsg(string msg);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/SaveMsg")]
+        System.Threading.Tasks.Task SaveMsgAsync(string msg);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/ShowMessages")]
+        void ShowMessages(int id);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/ShowMessages")]
+        System.Threading.Tasks.Task ShowMessagesAsync(int id);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/SendMsg")]
         void SendMsg(string msg, int id);
         
@@ -63,6 +75,9 @@ namespace ChatClient.ServiceChat {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/MsgCallback")]
         void MsgCallback(string msg);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/ShowMsgCallback")]
+        void ShowMsgCallback(string text);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChat/ShowOnlineCallback")]
         void ShowOnlineCallback(string[] users);
@@ -124,6 +139,22 @@ namespace ChatClient.ServiceChat {
         
         public System.Threading.Tasks.Task<string> GetOnlineAsync() {
             return base.Channel.GetOnlineAsync();
+        }
+        
+        public void SaveMsg(string msg) {
+            base.Channel.SaveMsg(msg);
+        }
+        
+        public System.Threading.Tasks.Task SaveMsgAsync(string msg) {
+            return base.Channel.SaveMsgAsync(msg);
+        }
+        
+        public void ShowMessages(int id) {
+            base.Channel.ShowMessages(id);
+        }
+        
+        public System.Threading.Tasks.Task ShowMessagesAsync(int id) {
+            return base.Channel.ShowMessagesAsync(id);
         }
         
         public void SendMsg(string msg, int id) {
